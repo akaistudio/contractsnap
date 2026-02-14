@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:700px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:20px}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}.card h3{font-size:15px;font-weight:700;color:#374151;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f1f5f9}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-group{margin-bottom:16px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif}.form-group textarea{resize:vertical;min-height:80px}.color-input{display:flex;align-items:center;gap:10px}.color-input input[type=color]{width:44px;height:44px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:2px}.logo-preview img{max-height:60px;border-radius:6px;margin-top:8px}.btn{padding:13px 28px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}.btn:hover{background:#0f766e}.actions{display:flex;justify-content:flex-end}.flash{padding:12px 16px;border-radius:10px;font-size:14px;margin-bottom:16px}.flash.success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}</style>
+</head>
+<body>
+<div class="topbar"><h1>Contract<span>Snap</span></h1><a href="/">← Dashboard</a></div>
+<div class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+    <h2>⚙️ Settings</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="card">
+            <h3>Company</h3>
+            <div class="form-group"><label>Company Name</label><input type="text" name="company_name" value="{{ user.company_name or '' }}"></div>
+            <div class="form-group"><label>Address</label><textarea name="company_address">{{ user.company_address or '' }}</textarea></div>
+            <div class="row">
+                <div class="form-group"><label>Email</label><input type="email" name="company_email" value="{{ user.company_email or '' }}"></div>
+                <div class="form-group"><label>Phone</label><input type="text" name="company_phone" value="{{ user.company_phone or '' }}"></div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Tax & Currency</h3>
+            <div class="row">
+                <div class="form-group"><label>Currency</label><select name="currency"><option value="INR" {% if user.currency=='INR' %}selected{% endif %}>INR (Rs.)</option><option value="CAD" {% if user.currency=='CAD' %}selected{% endif %}>CAD (C$)</option><option value="EUR" {% if user.currency=='EUR' %}selected{% endif %}>EUR</option><option value="USD" {% if user.currency=='USD' %}selected{% endif %}>USD ($)</option><option value="GBP" {% if user.currency=='GBP' %}selected{% endif %}>GBP</option></select></div>
+                <div class="form-group"><label>Tax Label</label><input type="text" name="tax_reg_label" value="{{ user.tax_reg_label or 'GSTIN' }}" placeholder="GSTIN / HST / VAT"></div>
+            </div>
+            <div class="form-group"><label>Tax Registration Number</label><input type="text" name="tax_reg_number" value="{{ user.tax_reg_number or '' }}"></div>
+            <div class="form-group"><label>Bank Details (for contracts)</label><textarea name="bank_details">{{ user.bank_details or '' }}</textarea></div>
+        </div>
+        <div class="card">
+            <h3>Branding</h3>
+            <div class="form-group"><label>Logo</label><input type="file" name="logo" accept=".jpg,.jpeg,.png,.webp" style="padding:8px">{% if user.logo_data %}<div class="logo-preview"><img src="{{ user.logo_data }}"></div>{% endif %}</div>
+            <div class="form-group"><label>Brand Color</label><div class="color-input"><input type="color" value="{{ user.brand_color or '#0d9488' }}" onchange="document.getElementById('bc').value=this.value"><input type="text" id="bc" name="brand_color" value="{{ user.brand_color or '#0d9488' }}"></div></div>
+        </div>
+        <div class="actions"><button type="submit" class="btn">💾 Save Settings</button></div>
+    </form>
+</div>
+</body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — Sign In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:center;justify-content:center}.container{width:100%;max-width:420px;padding:20px}.card{background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08)}.logo{text-align:center;margin-bottom:32px}.logo h1{font-size:28px;font-weight:700;color:#1e293b}.logo h1 span{color:#0d9488}.logo p{color:#64748b;font-size:14px;margin-top:4px}.tabs{display:flex;gap:0;margin-bottom:28px;background:#f1f5f9;border-radius:10px;padding:4px}.tab{flex:1;padding:10px;text-align:center;font-weight:600;font-size:14px;cursor:pointer;border-radius:8px;color:#64748b;transition:.2s}.tab.active{background:#fff;color:#1e293b;box-shadow:0 1px 3px rgba(0,0,0,.1)}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}.form-group input,.form-group select{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:'Inter',sans-serif}.form-group input:focus,.form-group select:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.1)}.btn{width:100%;padding:13px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}.btn:hover{background:#0f766e}.flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}.flash.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}#login-form,#register-form{display:none}#login-form.active,#register-form.active{display:block}</style>
+</head>
+<body>
+<div class="container"><div class="card">
+    <div class="logo"><h1>Contract<span>Snap</span></h1><p>Contracts & Purchase Orders</p></div>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+    <div class="tabs">
+        <div class="tab {% if not show_register %}active{% endif %}" onclick="showForm('login')">Sign In</div>
+        <div class="tab {% if show_register %}active{% endif %}" onclick="showForm('register')">Create Account</div>
+    </div>
+    <form id="login-form" class="{% if not show_register %}active{% endif %}" method="POST" action="/login">
+        <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+        <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+        <button class="btn" type="submit">Sign In</button>
+    </form>
+    <form id="register-form" class="{% if show_register %}active{% endif %}" method="POST" action="/register">
+        <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+        <div class="form-group"><label>Password</label><input type="password" name="password" required placeholder="Min 6 characters"></div>
+        <div class="form-group"><label>Company Name</label><input type="text" name="company_name"></div>
+        <div class="form-group"><label>Currency</label><select name="currency"><option value="INR">INR (Rs.)</option><option value="CAD">CAD (C$)</option><option value="EUR">EUR</option><option value="USD">USD ($)</option><option value="GBP">GBP</option></select></div>
+        <button class="btn" type="submit">Create Account</button>
+    </form>
+</div></div>
+<script>function showForm(t){document.getElementById('login-form').classList.toggle('active',t==='login');document.getElementById('register-form').classList.toggle('active',t==='register');document.querySelectorAll('.tab').forEach((e,i)=>e.classList.toggle('active',(t==='login'&&i===0)||(t==='register'&&i===1)))}</script>
+</body></html>

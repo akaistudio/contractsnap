@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar-right{display:flex;align-items:center;gap:10px}.topbar-right a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px;transition:.2s}.topbar-right a:hover{background:#f1f5f9;color:#1e293b}.topbar-right a.primary{background:#0d9488;color:#fff;font-weight:600}.topbar-right a.primary:hover{background:#0f766e}.topbar-right a.secondary{background:#f0fdfa;color:#0d9488;font-weight:600;border:1.5px solid #99f6e4}.main{max-width:1100px;margin:0 auto;padding:24px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.stat-card .label{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px}.stat-card .value{font-size:28px;font-weight:700;color:#1e293b;margin-top:4px}.stat-card .sub{font-size:13px;color:#94a3b8;margin-top:2px}.stat-card.total{border-left:4px solid #0d9488}.stat-card.active{border-left:4px solid #2563eb}.stat-card.value-card{border-left:4px solid #22c55e}.stat-card.invoiced{border-left:4px solid #f59e0b}.stat-card.remaining{border-left:4px solid #ef4444}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}.card h3{font-size:16px;font-weight:700;color:#1e293b;margin-bottom:16px}table{width:100%;border-collapse:collapse}th{padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;background:#f8fafc;border-bottom:1px solid #e2e8f0}td{padding:12px 14px;font-size:14px;color:#374151;border-bottom:1px solid #f1f5f9}tr:hover{background:#f8fafc}.status{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}.status.draft{background:#f1f5f9;color:#64748b}.status.sent{background:#e0f2fe;color:#0369a1}.status.signed{background:#fef3c7;color:#92400e}.status.active{background:#dcfce7;color:#16a34a}.status.completed{background:#f0fdf4;color:#15803d}.status.cancelled{background:#fee2e2;color:#dc2626}.type-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}.type-badge.service{background:#e0f2fe;color:#0369a1}.type-badge.retainer{background:#fae8ff;color:#86198f}.type-badge.purchase_order{background:#fef3c7;color:#92400e}.type-badge.nda{background:#fee2e2;color:#dc2626}.type-badge.sow{background:#dcfce7;color:#16a34a}.type-badge.freelance{background:#f1f5f9;color:#64748b}.actions a{color:#0d9488;text-decoration:none;font-weight:500;font-size:13px}.actions a:hover{text-decoration:underline}.progress{width:100px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}.progress-bar{height:100%;background:#0d9488;border-radius:3px}.empty{text-align:center;padding:48px 20px}.empty h3{font-size:18px;color:#374151;margin-bottom:8px}.empty p{color:#94a3b8;font-size:14px;margin-bottom:16px}.empty a{display:inline-block;padding:10px 20px;background:#0d9488;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;margin:4px}.flash{padding:12px 16px;border-radius:10px;font-size:14px;margin-bottom:16px}.flash.success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}.flash.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <h1>Contract<span>Snap</span></h1>
+    <div class="topbar-right">
+        <a href="/create" class="primary">+ New Contract</a>
+        <a href="/upload-po" class="secondary">📄 Upload PO</a>
+        <a href="/ai-generate">🤖 AI Generate</a>
+        <a href="/clients">👥 Clients</a>
+        {% if user.is_superadmin %}<a href="/admin">👑 Admin</a>{% endif %}
+        <a href="/settings">⚙️</a>
+        <a href="/logout">Sign out</a>
+    </div>
+</div>
+<div class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+
+    <div class="stats">
+        <div class="stat-card total"><div class="label">Total Contracts</div><div class="value">{{ stats.total }}</div><div class="sub">{{ stats.active }} active · {{ stats.drafts }} drafts</div></div>
+        <div class="stat-card value-card"><div class="label">Total Value</div><div class="value">{{ cs }}{{ "{:,.0f}".format(stats.total_value) }}</div></div>
+        <div class="stat-card invoiced"><div class="label">Invoiced</div><div class="value">{{ cs }}{{ "{:,.0f}".format(stats.total_invoiced) }}</div></div>
+        <div class="stat-card remaining"><div class="label">Remaining</div><div class="value">{{ cs }}{{ "{:,.0f}".format(stats.total_value - stats.total_invoiced) }}</div></div>
+    </div>
+
+    <div class="card">
+        <h3>All Contracts & POs</h3>
+        {% if contracts %}
+        <table>
+            <thead><tr><th>Ref</th><th>Title</th><th>Client</th><th>Type</th><th>Value</th><th>Invoiced</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+            {% for c in contracts %}
+            {% set pct = ((c.invoiced_amount or 0) / c.total_value * 100) if c.total_value else 0 %}
+            <tr>
+                <td><strong>{{ c.contract_number }}</strong>{% if c.po_number %}<br><span style="font-size:11px;color:#94a3b8">PO: {{ c.po_number }}</span>{% endif %}</td>
+                <td><strong>{{ c.title[:40] }}</strong></td>
+                <td>{{ c.client_name or '-' }}</td>
+                <td><span class="type-badge {{ c.contract_type }}">{{ c.contract_type | replace('_', ' ') | title }}</span></td>
+                <td><strong>{{ cs }}{{ "{:,.0f}".format(c.total_value or 0) }}</strong></td>
+                <td>{{ cs }}{{ "{:,.0f}".format(c.invoiced_amount or 0) }}<br><div class="progress"><div class="progress-bar" style="width:{{ pct }}%"></div></div></td>
+                <td><span class="status {{ c.status }}">{{ c.status | capitalize }}</span></td>
+                <td class="actions"><a href="/contract/{{ c.id }}">View</a> · <a href="/contract/{{ c.id }}/pdf">PDF</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <h3>No contracts yet</h3>
+            <p>Create a contract, upload a PO, or let AI generate one.</p>
+            <a href="/create">+ New Contract</a>
+            <a href="/upload-po" style="background:#f0fdfa;color:#0d9488;border:1.5px solid #99f6e4">📄 Upload PO</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body></html>

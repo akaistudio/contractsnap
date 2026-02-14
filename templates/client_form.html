@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — Add Client</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:600px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:20px}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-group{margin-bottom:16px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}.form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif}.form-group textarea{resize:vertical;min-height:80px}.btn{padding:13px 28px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;width:100%;margin-top:8px}.btn:hover{background:#0f766e}</style>
+</head>
+<body>
+<div class="topbar"><h1>Contract<span>Snap</span></h1><a href="/clients">← Clients</a></div>
+<div class="main">
+    <h2>+ Add Client</h2>
+    <div class="card">
+        <form method="POST">
+            <div class="form-group"><label>Company / Client Name *</label><input type="text" name="name" required></div>
+            <div class="row">
+                <div class="form-group"><label>Contact Person</label><input type="text" name="contact_person"></div>
+                <div class="form-group"><label>Email</label><input type="email" name="email"></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
+                <div class="form-group"><label>Tax ID (GST/HST/VAT)</label><input type="text" name="tax_id"></div>
+            </div>
+            <div class="form-group"><label>Address</label><textarea name="address"></textarea></div>
+            <button type="submit" class="btn">💾 Save Client</button>
+        </form>
+    </div>
+</div>
+</body></html>

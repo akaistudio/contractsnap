@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — AI Generate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:700px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:6px}.subtitle{color:#64748b;font-size:14px;margin-bottom:24px}.card{background:#fff;border-radius:12px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.form-group{margin-bottom:20px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:'Inter',sans-serif;resize:vertical}.form-group textarea:focus,.form-group select:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.1)}.hint{font-size:12px;color:#94a3b8;margin-top:4px}.btn{width:100%;padding:14px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer}.btn:hover{background:#0f766e}.examples{margin-top:20px;padding:16px;background:#f0fdfa;border-radius:10px;border:1px solid #99f6e4}.examples h4{font-size:13px;font-weight:600;color:#0d9488;margin-bottom:8px}.examples p{font-size:13px;color:#0f766e;margin-bottom:6px;cursor:pointer}.examples p:hover{text-decoration:underline}</style>
+</head>
+<body>
+<div class="topbar"><h1>Contract<span>Snap</span></h1><a href="/">← Dashboard</a></div>
+<div class="main">
+    <h2>🤖 AI Contract Generator</h2>
+    <p class="subtitle">Describe what you need and AI will draft a professional contract.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div style="padding:12px 16px;border-radius:10px;font-size:14px;margin-bottom:16px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca">{{ msg }}</div>{% endfor %}{% endwith %}
+    <div class="card">
+        <form method="POST">
+            <div class="form-group"><label>Contract Type</label>
+                <select name="contract_type">
+                    <option value="service">Service Agreement</option>
+                    <option value="retainer">Retainer Agreement</option>
+                    <option value="sow">Statement of Work</option>
+                    <option value="freelance">Freelancer Agreement</option>
+                    <option value="nda">NDA</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Describe the contract</label>
+                <textarea name="prompt" rows="6" placeholder="Example: Monthly retainer for social media management. Client: ABC Corp. Scope: 20 posts/month, analytics reports. Duration: 6 months. Value: INR 50,000/month." required id="promptField"></textarea>
+                <div class="hint">Include client name, scope, duration, value, and any special terms.</div>
+            </div>
+            <button type="submit" class="btn">🤖 Generate Contract</button>
+        </form>
+        <div class="examples">
+            <h4>💡 Example prompts:</h4>
+            <p onclick="document.getElementById('promptField').value=this.textContent">Website redesign for XYZ Corp. 3 pages, mobile responsive. INR 2,00,000. 2 months. 50% advance, 50% on delivery.</p>
+            <p onclick="document.getElementById('promptField').value=this.textContent">Monthly bookkeeping retainer for ABC Ltd. INR 25,000/month. 12 months. Includes GST filing, P&L reports, balance sheet.</p>
+            <p onclick="document.getElementById('promptField').value=this.textContent">NDA between our company and TechCo for sharing proprietary data during due diligence. 2 year term.</p>
+        </div>
+    </div>
+</div>
+</body></html>

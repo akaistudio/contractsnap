@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — New Contract</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:800px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:20px}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}.card h3{font-size:15px;font-weight:700;color:#374151;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f1f5f9}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}.form-group{margin-bottom:16px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif}.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.1)}.form-group textarea{resize:vertical;min-height:100px}.hint{font-size:12px;color:#94a3b8;margin-top:3px}.btn{padding:13px 28px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}.btn:hover{background:#0f766e}.btn-secondary{background:#f1f5f9;color:#374151;border:1.5px solid #e2e8f0}.btn-secondary:hover{background:#e2e8f0}.btn-sm{padding:8px 14px;font-size:13px;border-radius:6px}.actions{display:flex;justify-content:flex-end;gap:12px}.milestone-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin-bottom:8px;align-items:end}.milestone-row input{padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px}.remove-btn{padding:8px 12px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+        @media(max-width:768px){.row,.row-3{grid-template-columns:1fr}.milestone-row{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<div class="topbar"><h1>Contract<span>Snap</span></h1><a href="/">← Dashboard</a></div>
+<div class="main">
+    <h2>+ New Contract</h2>
+    <form method="POST">
+        <div class="card">
+            <h3>Contract Details</h3>
+            <div class="form-group"><label>Title *</label><input type="text" name="title" required placeholder="e.g. Website Redesign Project"></div>
+            <div class="row">
+                <div class="form-group"><label>Type</label>
+                    <select name="contract_type">
+                        <option value="service">Service Agreement</option>
+                        <option value="retainer">Retainer Agreement</option>
+                        <option value="sow">Statement of Work (SOW)</option>
+                        <option value="freelance">Freelancer Agreement</option>
+                        <option value="nda">NDA</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Status</label>
+                    <select name="status"><option value="draft">Draft</option><option value="sent">Sent</option><option value="signed">Signed</option><option value="active" selected>Active</option></select>
+                </div>
+            </div>
+            <div class="row-3">
+                <div class="form-group"><label>Start Date</label><input type="date" name="start_date"></div>
+                <div class="form-group"><label>End Date</label><input type="date" name="end_date"></div>
+                <div class="form-group"><label>Contract Value ({{ cs }})</label><input type="number" name="total_value" min="0" step="0.01" placeholder="0.00"></div>
+            </div>
+            <div class="form-group"><label>PO Number (if applicable)</label><input type="text" name="po_number" placeholder="e.g. PO-2026-001"></div>
+        </div>
+
+        <div class="card">
+            <h3>Client</h3>
+            <div class="form-group"><label>Select Existing Client</label>
+                <select name="client_id" id="clientSelect" onchange="toggleNewClient()">
+                    <option value="">— New Client —</option>
+                    {% for c in clients %}<option value="{{ c.id }}">{{ c.name }} ({{ c.email }})</option>{% endfor %}
+                </select>
+            </div>
+            <div id="newClient">
+                <div class="row">
+                    <div class="form-group"><label>Client Name</label><input type="text" name="client_name" placeholder="Company / Person name"></div>
+                    <div class="form-group"><label>Contact Person</label><input type="text" name="contact_person" placeholder="Primary contact"></div>
+                </div>
+                <div class="row">
+                    <div class="form-group"><label>Email</label><input type="email" name="client_email"></div>
+                    <div class="form-group"><label>Address</label><input type="text" name="client_address"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Scope & Terms</h3>
+            <div class="form-group"><label>Scope of Work</label><textarea name="scope_of_work" placeholder="Describe what work will be performed..."></textarea></div>
+            <div class="form-group"><label>Deliverables</label><textarea name="deliverables" placeholder="List what will be delivered..." style="min-height:80px"></textarea></div>
+            <div class="form-group"><label>Payment Terms</label><input type="text" name="payment_terms" placeholder="e.g. 50% upfront, 50% on completion. Net 30."></div>
+            <div class="form-group"><label>Terms & Conditions</label><textarea name="terms_conditions" placeholder="Cancellation, IP ownership, confidentiality, etc."></textarea></div>
+            <div class="form-group"><label>Notes</label><textarea name="notes" placeholder="Internal notes (won't appear on PDF)" style="min-height:60px"></textarea></div>
+        </div>
+
+        <div class="card">
+            <h3>Milestones / Payment Schedule <span style="font-size:13px;font-weight:400;color:#94a3b8">(optional)</span></h3>
+            <div id="milestones">
+                <div class="milestone-row">
+                    <div><label style="font-size:12px;color:#64748b;font-weight:600">Milestone</label><input type="text" name="milestone_title[]" placeholder="e.g. Phase 1 Delivery"></div>
+                    <div><label style="font-size:12px;color:#64748b;font-weight:600">Amount ({{ cs }})</label><input type="number" name="milestone_amount[]" min="0" step="0.01" placeholder="0"></div>
+                    <div><label style="font-size:12px;color:#64748b;font-weight:600">Due Date</label><input type="date" name="milestone_date[]"></div>
+                    <button type="button" class="remove-btn" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            </div>
+            <button type="button" class="btn-secondary btn-sm" onclick="addMilestone()" style="margin-top:8px">+ Add Milestone</button>
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn btn-secondary" style="text-decoration:none">Cancel</a>
+            <button type="submit" class="btn">📝 Create Contract</button>
+        </div>
+    </form>
+</div>
+<script>
+function toggleNewClient(){document.getElementById('newClient').style.display=document.getElementById('clientSelect').value?'none':'block'}
+function addMilestone(){
+    const div=document.createElement('div');div.className='milestone-row';
+    div.innerHTML='<div><input type="text" name="milestone_title[]" placeholder="Milestone"></div><div><input type="number" name="milestone_amount[]" min="0" step="0.01" placeholder="0"></div><div><input type="date" name="milestone_date[]"></div><button type="button" class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    document.getElementById('milestones').appendChild(div);
+}
+</script>
+</body></html>

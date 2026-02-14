@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — {{ contract.contract_number }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar-right{display:flex;gap:8px}.topbar-right a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.topbar-right a.primary{background:#0d9488;color:#fff;font-weight:600}.main{max-width:900px;margin:0 auto;padding:24px}.contract-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px}.contract-title h2{font-size:24px;font-weight:700;color:#1e293b;margin-bottom:4px}.contract-title .ref{font-size:14px;color:#64748b}.contract-meta{text-align:right}.status{display:inline-block;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}.status.draft{background:#f1f5f9;color:#64748b}.status.sent{background:#e0f2fe;color:#0369a1}.status.signed{background:#fef3c7;color:#92400e}.status.active{background:#dcfce7;color:#16a34a}.status.completed{background:#f0fdf4;color:#15803d}.status.cancelled{background:#fee2e2;color:#dc2626}.type-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;margin-bottom:8px}.type-badge.service{background:#e0f2fe;color:#0369a1}.type-badge.retainer{background:#fae8ff;color:#86198f}.type-badge.purchase_order{background:#fef3c7;color:#92400e}.type-badge.nda{background:#fee2e2;color:#dc2626}.type-badge.sow{background:#dcfce7;color:#16a34a}.type-badge.freelance{background:#f1f5f9;color:#64748b}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}.card h3{font-size:14px;font-weight:700;color:#0d9488;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.info-item{font-size:14px}.info-item .label{color:#64748b;font-size:12px;font-weight:600}.info-item .value{color:#1e293b;font-weight:500;margin-top:2px}.value-box{background:#f0fdfa;border:2px solid #0d9488;border-radius:12px;padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;text-align:center;margin-bottom:20px}.value-box .item .label{font-size:12px;color:#64748b;font-weight:600}.value-box .item .amount{font-size:22px;font-weight:700;color:#1e293b;margin-top:2px}.value-box .item .amount.green{color:#16a34a}.value-box .item .amount.orange{color:#f59e0b}.progress-bar{width:100%;height:8px;background:#e2e8f0;border-radius:4px;margin-top:8px;overflow:hidden}.progress-fill{height:100%;background:#0d9488;border-radius:4px}.section-text{font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap}.status-form{display:inline-flex;gap:6px;align-items:center;margin-top:8px}.status-form select{padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:13px}.status-form button{padding:6px 12px;background:#0d9488;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}.milestone-table{width:100%;border-collapse:collapse}.milestone-table th{padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;background:#f8fafc;border-bottom:1px solid #e2e8f0}.milestone-table td{padding:10px 12px;font-size:14px;color:#374151;border-bottom:1px solid #f1f5f9}.delete-form{margin-top:20px;text-align:right}.delete-btn{padding:8px 16px;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}.flash{padding:12px 16px;border-radius:10px;font-size:14px;margin-bottom:16px}.flash.success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}.flash.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <h1>Contract<span>Snap</span></h1>
+    <div class="topbar-right">
+        <a href="/">← Dashboard</a>
+        <a href="/contract/{{ contract.id }}/pdf" class="primary">⬇ Download PDF</a>
+    </div>
+</div>
+<div class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
+
+    <div class="contract-header">
+        <div class="contract-title">
+            <span class="type-badge {{ contract.contract_type }}">{{ contract.contract_type | replace('_', ' ') | title }}</span>
+            <h2>{{ contract.title }}</h2>
+            <div class="ref">{{ contract.contract_number }}{% if contract.po_number %} · PO: {{ contract.po_number }}{% endif %}</div>
+        </div>
+        <div class="contract-meta">
+            <span class="status {{ contract.status }}">{{ contract.status | capitalize }}</span>
+            <form method="POST" action="/contract/{{ contract.id }}/status" class="status-form">
+                <select name="status">
+                    {% for s in ['draft','sent','signed','active','completed','cancelled'] %}
+                    <option value="{{ s }}" {% if s == contract.status %}selected{% endif %}>{{ s | capitalize }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    {% set pct = ((contract.invoiced_amount or 0) / contract.total_value * 100) if contract.total_value else 0 %}
+    <div class="value-box">
+        <div class="item"><div class="label">Contract Value</div><div class="amount">{{ cs }}{{ "{:,.0f}".format(contract.total_value or 0) }}</div></div>
+        <div class="item"><div class="label">Invoiced</div><div class="amount orange">{{ cs }}{{ "{:,.0f}".format(contract.invoiced_amount or 0) }}</div></div>
+        <div class="item"><div class="label">Remaining</div><div class="amount green">{{ cs }}{{ "{:,.0f}".format(remaining) }}</div></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:{{ pct }}%"></div></div>
+    <p style="font-size:12px;color:#94a3b8;text-align:right;margin-top:4px;margin-bottom:20px">{{ "{:.0f}".format(pct) }}% invoiced</p>
+
+    <div class="card">
+        <h3>Client</h3>
+        <div class="info-grid">
+            <div class="info-item"><div class="label">Name</div><div class="value">{{ contract.client_name or '-' }}</div></div>
+            <div class="info-item"><div class="label">Contact</div><div class="value">{{ contract.contact_person or '-' }}</div></div>
+            <div class="info-item"><div class="label">Email</div><div class="value">{{ contract.client_email or '-' }}</div></div>
+            <div class="info-item"><div class="label">Address</div><div class="value">{{ contract.client_address or '-' }}</div></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Key Terms</h3>
+        <div class="info-grid">
+            <div class="info-item"><div class="label">Start Date</div><div class="value">{{ contract.start_date or '-' }}</div></div>
+            <div class="info-item"><div class="label">End Date</div><div class="value">{{ contract.end_date or '-' }}</div></div>
+            <div class="info-item"><div class="label">Payment Terms</div><div class="value">{{ contract.payment_terms or '-' }}</div></div>
+            <div class="info-item"><div class="label">Currency</div><div class="value">{{ contract.currency }}</div></div>
+        </div>
+    </div>
+
+    {% if contract.scope_of_work %}
+    <div class="card"><h3>Scope of Work</h3><div class="section-text">{{ contract.scope_of_work }}</div></div>
+    {% endif %}
+
+    {% if contract.deliverables %}
+    <div class="card"><h3>Deliverables</h3><div class="section-text">{{ contract.deliverables }}</div></div>
+    {% endif %}
+
+    {% if milestones %}
+    <div class="card">
+        <h3>Milestones / Payment Schedule</h3>
+        <table class="milestone-table">
+            <thead><tr><th>Milestone</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for m in milestones %}
+            <tr>
+                <td><strong>{{ m.title }}</strong>{% if m.description %}<br><span style="font-size:12px;color:#94a3b8">{{ m.description }}</span>{% endif %}</td>
+                <td>{{ m.due_date or '-' }}</td>
+                <td><strong>{{ cs }}{{ "{:,.0f}".format(m.amount or 0) }}</strong></td>
+                <td><span class="status {{ m.status }}">{{ m.status | capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if contract.terms_conditions %}
+    <div class="card"><h3>Terms & Conditions</h3><div class="section-text" style="font-size:13px">{{ contract.terms_conditions }}</div></div>
+    {% endif %}
+
+    {% if contract.notes %}
+    <div class="card"><h3>Internal Notes</h3><div class="section-text" style="font-size:13px;color:#64748b">{{ contract.notes }}</div></div>
+    {% endif %}
+
+    <form method="POST" action="/contract/{{ contract.id }}/delete" class="delete-form" onsubmit="return confirm('Delete this contract?')">
+        <button type="submit" class="delete-btn">🗑 Delete Contract</button>
+    </form>
+</div>
+</body></html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContractSnap — Review PO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#1e293b}.topbar h1 span{color:#0d9488}.topbar a{font-size:13px;color:#64748b;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:800px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:6px}.subtitle{color:#64748b;font-size:14px;margin-bottom:24px}.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}.card h3{font-size:15px;font-weight:700;color:#374151;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f1f5f9}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-group{margin-bottom:16px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:5px}.form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif}.form-group textarea{resize:vertical;min-height:100px}.btn{padding:13px 28px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}.btn:hover{background:#0f766e}.actions{display:flex;justify-content:flex-end;gap:12px}.ai-badge{background:#f0fdfa;color:#0d9488;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;display:inline-block;margin-bottom:16px}</style>
+</head>
+<body>
+<div class="topbar"><h1>Contract<span>Snap</span></h1><a href="/">← Dashboard</a></div>
+<div class="main">
+    <h2>📄 Review Extracted PO</h2>
+    <p class="subtitle">AI extracted the data below. Review and correct before saving.</p>
+    <span class="ai-badge">🤖 AI Extracted — Please verify</span>
+
+    <form method="POST" action="/save-po">
+        <input type="hidden" name="po_file_data" value="{{ po_file_data }}">
+
+        <div class="card">
+            <h3>PO Details</h3>
+            <div class="row">
+                <div class="form-group"><label>Title</label><input type="text" name="title" value="{{ extracted.get('client_name', '') }} — Purchase Order" required></div>
+                <div class="form-group"><label>PO Number</label><input type="text" name="po_number" value="{{ extracted.get('po_number', '') }}"></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Issue Date</label><input type="date" name="start_date" value="{{ extracted.get('issue_date', '') }}"></div>
+                <div class="form-group"><label>Delivery/End Date</label><input type="date" name="end_date" value="{{ extracted.get('delivery_date', '') }}"></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Total Value</label><input type="number" name="total_value" step="0.01" value="{{ extracted.get('total_value', 0) }}"></div>
+                <div class="form-group"><label>Payment Terms</label><input type="text" name="payment_terms" value="{{ extracted.get('payment_terms', '') }}"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Client</h3>
+            <div class="row">
+                <div class="form-group"><label>Client Name</label><input type="text" name="client_name" value="{{ extracted.get('client_name', '') }}"></div>
+                <div class="form-group"><label>Contact Person</label><input type="text" name="contact_person" value="{{ extracted.get('contact_person', '') }}"></div>
+            </div>
+            <div class="row">
+                <div class="form-group"><label>Email</label><input type="email" name="client_email" value=""></div>
+                <div class="form-group"><label>Address</label><input type="text" name="client_address" value="{{ extracted.get('client_address', '') }}"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Scope of Work</h3>
+            <div class="form-group"><textarea name="scope_of_work">{{ extracted.get('scope_of_work', '') }}{% if extracted.get('items') %}{% for it in extracted.items %}
+- {{ it.description }} (Qty: {{ it.quantity }}, Amount: {{ it.amount }}){% endfor %}{% endif %}</textarea></div>
+            <div class="form-group"><label>Notes</label><textarea name="notes" style="min-height:60px">{{ extracted.get('notes', '') }}</textarea></div>
+        </div>
+
+        <div class="actions">
+            <a href="/upload-po" class="btn" style="background:#f1f5f9;color:#374151;text-decoration:none">← Re-upload</a>
+            <button type="submit" class="btn">💾 Save Purchase Order</button>
+        </div>
+    </form>
+</div>
+</body></html>
