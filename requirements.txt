@@ -4,3 +4,4 @@ psycopg2-binary==2.9.9
 fpdf2==2.8.1
 Pillow>=10.0.0
 anthropic>=0.39.0
+requests==2.31.0
