@@ -3,6 +3,7 @@ import json
 import base64
 import hashlib
 import secrets
+import requests as http_requests
 from datetime import datetime, date, timedelta
 from functools import wraps
 from io import BytesIO
@@ -111,6 +112,16 @@ init_db()
 def hash_pw(pw):
     return hashlib.sha256(pw.encode()).hexdigest()
 
+def register_with_hub(company_name, email, currency):
+    hub = os.environ.get('FINANCESNAP_URL', 'https://financesnap.up.railway.app')
+    try:
+        http_requests.post(f'{hub}/api/register-company', json={
+            'app_name': 'ContractSnap', 'company_name': company_name,
+            'email': email, 'currency': currency,
+            'app_url': 'https://contractsnap-app.up.railway.app'
+        }, timeout=5)
+    except: pass
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -171,6 +182,7 @@ def register():
             user_id = cur.fetchone()[0]
             session['user_id'] = user_id
             conn.close()
+            register_with_hub(company, email, currency)
             return redirect(url_for('settings'))
         except psycopg2.IntegrityError:
             conn.close()
