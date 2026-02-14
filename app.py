@@ -113,7 +113,7 @@ def hash_pw(pw):
     return hashlib.sha256(pw.encode()).hexdigest()
 
 def register_with_hub(company_name, email, currency):
-    hub = os.environ.get('FINANCESNAP_URL', 'https://financesnap.up.railway.app')
+    hub = os.environ.get('FINANCESNAP_URL', 'https://snapsuite.up.railway.app')
     try:
         http_requests.post(f'{hub}/api/register-company', json={
             'app_name': 'ContractSnap', 'company_name': company_name,
