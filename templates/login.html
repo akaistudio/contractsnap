@@ -1,31 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContractSnap — Sign In</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:#f0f4f8;min-height:100vh;display:flex;align-items:center;justify-content:center}.container{width:100%;max-width:420px;padding:20px}.card{background:#fff;border-radius:16px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08)}.logo{text-align:center;margin-bottom:32px}.logo h1{font-size:28px;font-weight:700;color:#1e293b}.logo h1 span{color:#0d9488}.logo p{color:#64748b;font-size:14px;margin-top:4px}.tabs{display:flex;gap:0;margin-bottom:28px;background:#f1f5f9;border-radius:10px;padding:4px}.tab{flex:1;padding:10px;text-align:center;font-weight:600;font-size:14px;cursor:pointer;border-radius:8px;color:#64748b;transition:.2s}.tab.active{background:#fff;color:#1e293b;box-shadow:0 1px 3px rgba(0,0,0,.1)}.form-group{margin-bottom:18px}.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px}.form-group input,.form-group select{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:'Inter',sans-serif}.form-group input:focus,.form-group select:focus{outline:none;border-color:#0d9488;box-shadow:0 0 0 3px rgba(13,148,136,.1)}.btn{width:100%;padding:13px;background:#0d9488;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}.btn:hover{background:#0f766e}.flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}.flash.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}#login-form,#register-form{display:none}#login-form.active,#register-form.active{display:block}</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ContractSnap — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0F1A;--surface:#141926;--border:#2A3148;--text:#E8ECF4;--text2:#8B95B0;--accent:#14b8a6;--accent2:#0d9488;--green:#4ADE80;--red:#F87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{width:100%;max-width:440px;padding:24px}
+.logo{text-align:center;margin-bottom:32px}
+.logo .icon{width:56px;height:56px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));margin-bottom:12px}
+.logo h1{font-size:28px;font-weight:800;color:#fff}.logo h1 span{color:var(--accent)}
+.logo p{font-size:14px;color:var(--text2);margin-top:6px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px}
+.card h2{font-size:20px;font-weight:700;margin-bottom:20px;color:#fff}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-group input,.form-group select{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;color:#fff;font-size:14px;font-family:'DM Sans',sans-serif}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;transition:.2s}
+.btn:hover{opacity:.9;transform:translateY(-1px)}
+.switch{text-align:center;margin-top:16px;font-size:14px;color:var(--text2)}.switch a{color:var(--accent);text-decoration:none;font-weight:600}
+.flash{padding:12px;border-radius:10px;font-size:13px;margin-bottom:16px}
+.flash.error{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.flash.success{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.suite{margin-top:24px;text-align:center;font-size:12px;color:var(--text2)}.suite a{color:var(--text2);text-decoration:none;font-weight:600}.suite a:hover{color:var(--accent)}
+</style>
 </head>
 <body>
-<div class="container"><div class="card">
-    <div class="logo"><h1>Contract<span>Snap</span></h1><p>Contracts & Purchase Orders</p></div>
+<div class="container">
+    <div class="logo"><div class="icon">C</div><h1>Contract<span>Snap</span></h1><p>Contracts & purchase orders</p></div>
     {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
-    <div class="tabs">
-        <div class="tab {% if not show_register %}active{% endif %}" onclick="showForm('login')">Sign In</div>
-        <div class="tab {% if show_register %}active{% endif %}" onclick="showForm('register')">Create Account</div>
+    {% if show_register is defined and show_register %}
+    <div class="card">
+        <h2>Create Account</h2>
+        <form method="POST" action="/register">
+            <div class="form-group"><label>Company Name</label><input type="text" name="company_name" required placeholder="Your company name"></div>
+            <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password" required minlength="6"></div>
+            <div class="form-group"><label>Currency</label><select name="currency"><option value="INR">INR</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option></select></div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+        <div class="switch">Already have an account? <a href="/login">Sign in</a></div>
     </div>
-    <form id="login-form" class="{% if not show_register %}active{% endif %}" method="POST" action="/login">
-        <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
-        <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
-        <button class="btn" type="submit">Sign In</button>
-    </form>
-    <form id="register-form" class="{% if show_register %}active{% endif %}" method="POST" action="/register">
-        <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
-        <div class="form-group"><label>Password</label><input type="password" name="password" required placeholder="Min 6 characters"></div>
-        <div class="form-group"><label>Company Name</label><input type="text" name="company_name"></div>
-        <div class="form-group"><label>Currency</label><select name="currency"><option value="INR">INR (Rs.)</option><option value="CAD">CAD (C$)</option><option value="EUR">EUR</option><option value="USD">USD ($)</option><option value="GBP">GBP</option></select></div>
-        <button class="btn" type="submit">Create Account</button>
-    </form>
-</div></div>
-<script>function showForm(t){document.getElementById('login-form').classList.toggle('active',t==='login');document.getElementById('register-form').classList.toggle('active',t==='register');document.querySelectorAll('.tab').forEach((e,i)=>e.classList.toggle('active',(t==='login'&&i===0)||(t==='register'&&i===1)))}</script>
+    {% else %}
+    <div class="card">
+        <h2>Sign In</h2>
+        <form method="POST" action="/login">
+            <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+            <button type="submit" class="btn">Sign In</button>
+        </form>
+        <div class="switch">New here? <a href="/register">Create account</a></div>
+    </div>
+    {% endif %}
+    <div class="suite">Part of <a href="https://financesnap.up.railway.app">SnapSuite</a></div>
+</div>
 </body></html>
