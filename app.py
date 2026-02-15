@@ -146,6 +146,16 @@ CURR_SYMBOLS = {'CAD': 'C$', 'INR': 'Rs.', 'EUR': 'EUR', 'USD': '$', 'GBP': 'GBP
 def curr_sym(currency):
     return CURR_SYMBOLS.get(currency, '$')
 
+@app.route('/demo')
+def demo_auto_login():
+    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM users WHERE email='demo@snapsuite.app'")
+    user = cur.fetchone(); conn.close()
+    if user:
+        session['user_id'] = user['id']
+        return redirect('/')
+    return redirect('/login')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
