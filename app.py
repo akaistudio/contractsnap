@@ -1016,3 +1016,48 @@ def seed_test_data():
         count += 1
     conn.commit(); conn.close()
     return jsonify({'success': True, 'company': 'Bloom Studio', 'contracts': count, 'clients': len(client_ids)})
+
+# --- Demo Setup ---
+@app.route('/api/demo-setup', methods=['POST'])
+def demo_setup():
+    secret = request.headers.get('X-Demo-Secret', '')
+    if secret != 'snapsuite-demo-2026': return jsonify({'error': 'Unauthorized'}), 403
+    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    demo_email = 'demo@snapsuite.app'
+    cur.execute('SELECT * FROM users WHERE email=%s', (demo_email,))
+    user = cur.fetchone()
+    if not user:
+        cur.execute("""INSERT INTO users (email,password_hash,company_name,currency,is_superadmin)
+                       VALUES (%s,%s,'Bloom Studio','INR',TRUE) RETURNING *""",
+                   (demo_email, hash_pw('demo123')))
+        user = cur.fetchone()
+        conn.commit()
+    uid = user['id']
+    cur.execute('SELECT COUNT(*) as cnt FROM contracts WHERE user_id=%s AND company_name=%s', (uid, 'Bloom Studio'))
+    if cur.fetchone()['cnt'] == 0:
+        # Create clients
+        clients = [
+            ('Meridian Architects','meridian@example.com','45 MG Road, Bangalore'),
+            ('Zenith Foods Pvt Ltd','zenith@example.com','12 Church St, Bangalore'),
+            ('Priya Wellness Spa','priya@example.com','88 Lavelle Rd, Bangalore'),
+            ('TechNova Solutions','technova@example.com','HSR Layout, Bangalore'),
+            ('CloudFirst India','cloud@example.com','Whitefield, Bangalore'),
+        ]
+        cids = {}
+        for c in clients:
+            cur.execute("INSERT INTO clients (user_id,name,email,address) VALUES (%s,%s,%s,%s) RETURNING id",
+                       (uid,c[0],c[1],c[2]))
+            cids[c[0]] = cur.fetchone()['id']
+        contracts = [
+            ('CON-2026-001','Website Redesign','active','2026-01-01','2026-06-30',320000,'Meridian Architects'),
+            ('CON-2026-002','Brand Identity Package','active','2026-01-15','2026-03-15',150000,'Zenith Foods Pvt Ltd'),
+            ('CON-2026-003','Social Media Q1','active','2026-01-01','2026-03-31',90000,'Priya Wellness Spa'),
+            ('CON-2026-004','Mobile App UI/UX','draft','2026-02-15','2026-05-15',250000,'TechNova Solutions'),
+            ('CON-2026-005','Annual Retainer 2025','completed','2025-01-01','2025-12-31',480000,'CloudFirst India'),
+        ]
+        for c in contracts:
+            cur.execute("""INSERT INTO contracts (user_id,client_id,contract_number,title,status,start_date,end_date,
+                           total_value,currency,company_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'INR','Bloom Studio')""",
+                       (uid,cids[c[6]],c[0],c[1],c[2],c[3],c[4],c[5]))
+    conn.commit(); conn.close()
+    return jsonify({'success': True, 'app': 'ContractSnap'})
