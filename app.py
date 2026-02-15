@@ -935,3 +935,69 @@ def extract_brand_color(img_bytes):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
+
+# --- Seed Test Data ---
+@app.route('/api/seed-test-data', methods=['POST'])
+def seed_test_data():
+    api_key = request.headers.get('X-API-Key', '')
+    if not api_key: return jsonify({'error': 'API key required'}), 401
+    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute('SELECT * FROM users WHERE email=%s', (api_key,))
+    user = cur.fetchone()
+    if not user: conn.close(); return jsonify({'error': 'Invalid API key'}), 401
+    uid = user['id']
+
+    # Update user company_name
+    cur.execute("UPDATE users SET company_name='Bloom Studio' WHERE id=%s AND (company_name IS NULL OR company_name='')", (uid,))
+
+    # Create clients
+    clients_data = [
+        ('Meridian Architects','meridian@example.com','45 MG Road, Bangalore','9876543210','Rahul Menon','29ABCDE1234F1Z5'),
+        ('Zenith Foods Pvt Ltd','zenith@example.com','12 Church St, Bangalore','9876500001','Anita Sharma','29FGHIJ5678K2Z3'),
+        ('Priya Wellness Spa','priya@example.com','88 Lavelle Rd, Bangalore','9812345678','Priya Reddy','29KLMNO9012P3Z1'),
+        ('TechNova Solutions','technova@example.com','HSR Layout, Bangalore','9900112233','Vikram Joshi','29PQRST3456U4Z9'),
+        ('CloudFirst India','cloud@example.com','Whitefield, Bangalore','9123456780','Deepak Kumar','29QWERT1234Y6Z2'),
+    ]
+    client_ids = {}
+    for c in clients_data:
+        cur.execute("INSERT INTO clients (user_id,name,email,address,phone,contact_person,tax_id) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
+                   (uid, c[0],c[1],c[2],c[3],c[4],c[5]))
+        client_ids[c[0]] = cur.fetchone()['id']
+
+    contracts = [
+        ('CON-2026-001','Website Redesign & Development','service','active','2026-01-01','2026-06-30',
+         320000,'INR','50% advance, 25% on UAT, 25% on delivery',
+         'Complete redesign of corporate website including responsive design, CMS integration, and SEO optimization.',
+         'Standard T&C apply. IP transfers on final payment.','Homepage, 8 inner pages, blog, contact form, admin panel',
+         'Meridian Architects'),
+        ('CON-2026-002','Brand Identity Package','service','active','2026-01-15','2026-03-15',
+         150000,'INR','100% advance',
+         'Full brand identity including logo, color palette, typography, brand guidelines, stationery design.',
+         'Includes 3 revision rounds. Additional revisions at ₹5,000 per round.','Logo, brand guide, business cards, letterhead, envelope',
+         'Zenith Foods Pvt Ltd'),
+        ('CON-2026-003','Social Media Management Q1','service','active','2026-01-01','2026-03-31',
+         90000,'INR','Monthly billing',
+         'Monthly social media content creation and management for Instagram and LinkedIn. 20 posts/month.',
+         'Content calendar approval required 5 days before posting.','60 posts, 12 reels, monthly analytics report',
+         'Priya Wellness Spa'),
+        ('CON-2026-004','Mobile App UI/UX Design','service','draft','2026-02-15','2026-05-15',
+         250000,'INR','30-60-10 milestone billing',
+         'UI/UX design for iOS and Android food delivery app. Includes user research, wireframes, and final designs.',
+         'Figma source files delivered on completion.','Research report, wireframes, UI kit, 25 screens, prototype',
+         'TechNova Solutions'),
+        ('CON-2026-005','Annual Retainer 2025','service','completed','2025-01-01','2025-12-31',
+         480000,'INR','Monthly',
+         'Ongoing design support including marketing collateral, presentation decks, and ad creatives. 40 hours/month.',
+         'Unused hours do not roll over.','Marketing materials, presentations, social assets',
+         'CloudFirst India'),
+    ]
+    count = 0
+    for c in contracts:
+        cid = client_ids.get(c[12])
+        cur.execute("""INSERT INTO contracts (user_id,client_id,contract_number,title,contract_type,status,start_date,end_date,
+                       total_value,currency,payment_terms,scope_of_work,terms_conditions,deliverables)
+                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                   (uid,cid,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[11]))
+        count += 1
+    conn.commit(); conn.close()
+    return jsonify({'success': True, 'company': 'Bloom Studio', 'contracts': count, 'clients': len(client_ids)})
