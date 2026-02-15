@@ -98,6 +98,7 @@ def init_db():
     migrations = [
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_superadmin BOOLEAN DEFAULT FALSE",
         "UPDATE users SET is_superadmin = TRUE WHERE id = (SELECT MIN(id) FROM users)",
+        "ALTER TABLE contracts ADD COLUMN IF NOT EXISTS company_name TEXT DEFAULT ''",
     ]
     for m in migrations:
         try:
@@ -899,9 +900,23 @@ def api_contracts():
     if not user:
         conn.close()
         return jsonify({'error': 'Invalid'}), 401
-    cur.execute('''SELECT c.*, cl.name as client_name FROM contracts c
-                  LEFT JOIN clients cl ON c.client_id = cl.id
-                  WHERE c.user_id=%s ORDER BY c.updated_at DESC''', (user['id'],))
+    company_name = request.args.get('company_name', '')
+    if company_name:
+        user_company = user.get('company_name', '') or ''
+        if user_company.lower().strip() == company_name.lower().strip():
+            cur.execute('''SELECT c.*, cl.name as client_name FROM contracts c
+                          LEFT JOIN clients cl ON c.client_id = cl.id
+                          WHERE c.user_id=%s AND (LOWER(c.company_name)=LOWER(%s) OR c.company_name IS NULL OR c.company_name='')
+                          ORDER BY c.updated_at DESC''', (user['id'], company_name))
+        else:
+            cur.execute('''SELECT c.*, cl.name as client_name FROM contracts c
+                          LEFT JOIN clients cl ON c.client_id = cl.id
+                          WHERE c.user_id=%s AND LOWER(c.company_name)=LOWER(%s)
+                          ORDER BY c.updated_at DESC''', (user['id'], company_name))
+    else:
+        cur.execute('''SELECT c.*, cl.name as client_name FROM contracts c
+                      LEFT JOIN clients cl ON c.client_id = cl.id
+                      WHERE c.user_id=%s ORDER BY c.updated_at DESC''', (user['id'],))
     contracts = cur.fetchall()
     conn.close()
     for c in contracts:
@@ -995,8 +1010,8 @@ def seed_test_data():
     for c in contracts:
         cid = client_ids.get(c[12])
         cur.execute("""INSERT INTO contracts (user_id,client_id,contract_number,title,contract_type,status,start_date,end_date,
-                       total_value,currency,payment_terms,scope_of_work,terms_conditions,deliverables)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                       total_value,currency,payment_terms,scope_of_work,terms_conditions,deliverables,company_name)
+                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Bloom Studio')""",
                    (uid,cid,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[11]))
         count += 1
     conn.commit(); conn.close()
