@@ -141,7 +141,7 @@ def get_user():
     conn.close()
     return user
 
-CURR_SYMBOLS = {'CAD': 'C$', 'INR': 'Rs.', 'EUR': 'EUR', 'USD': '$', 'GBP': 'GBP'}
+CURR_SYMBOLS = {'CAD': 'C$', 'INR': 'Rs.', 'EUR': 'EUR', 'USD': '$', 'GBP': 'GBP', 'MYR': 'RM'}
 
 def curr_sym(currency):
     return CURR_SYMBOLS.get(currency, '$')
