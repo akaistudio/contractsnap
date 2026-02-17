@@ -127,7 +127,7 @@ def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect(url_for('login'))
+            return redirect('/welcome')
         return f(*args, **kwargs)
     return decorated
 
@@ -154,7 +154,12 @@ def demo_auto_login():
     if user:
         session['user_id'] = user['id']
         return redirect('/')
-    return redirect('/login')
+    return redirect('/welcome')
+
+@app.route('/welcome')
+def welcome():
+    if 'user_id' in session: return redirect('/')
+    return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
