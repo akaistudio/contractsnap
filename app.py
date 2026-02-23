@@ -148,7 +148,7 @@ def send_otp_email(email, code, purpose='login'):
     </div>"""
     if not resend_key:
         print(f"⚠️ RESEND_API_KEY not set. OTP for {email}: {code}")
-        return True
+        return False
     import requests as http_req
     try:
         r = http_req.post('https://api.resend.com/emails', json={
@@ -160,11 +160,11 @@ def send_otp_email(email, code, purpose='login'):
         else:
             print(f"❌ Resend error {r.status_code}: {r.text}")
             print(f"💡 OTP for {email}: {code}")
-            return True
+            return False
     except Exception as e:
         print(f"❌ Email failed: {e}")
         print(f"💡 OTP for {email}: {code}")
-        return True
+        return False
 
 
 def register_with_hub(company_name, email, currency):
@@ -259,7 +259,7 @@ def send_otp():
     conn.close()
     if send_otp_email(email, code, purpose):
         return jsonify({"success": True})
-    return jsonify({"error": "Failed to send email"}), 500
+    return jsonify({"success": True, "fallback_code": code, "email_failed": True})
 
 @app.route('/api/auth/verify-otp', methods=['POST'])
 def verify_otp():

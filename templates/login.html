@@ -112,7 +112,7 @@ async function sendLoginOTP(){
   if(!email){showAlert('Please enter your email','error');return;}
   loginEmailVal=email;const btn=document.getElementById('loginSendBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Sending...';
   try{const r=await fetch('/api/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,purpose:'login'})});
-    const d=await r.json();if(d.success){document.getElementById('loginEmailDisplay').textContent=email;showStep('loginStep2');showAlert('Code sent to '+email,'success');startTimer('loginCountdown','loginTimer','loginResend',60);setTimeout(()=>document.querySelector('#loginStep2 .otp-digit').focus(),100);}
+    const d=await r.json();if(d.success){document.getElementById('loginEmailDisplay').textContent=email;showStep('loginStep2');if(d.fallback_code){showAlert('Email unavailable. Your code: '+d.fallback_code,'success');}else{showAlert('Code sent to '+email,'success');};startTimer('loginCountdown','loginTimer','loginResend',60);setTimeout(()=>document.querySelector('#loginStep2 .otp-digit').focus(),100);}
     else{showAlert(d.error||'Failed to send code','error');}
   }catch(e){showAlert('Connection error','error');}btn.disabled=false;btn.innerHTML='Send Login Code';
 }
@@ -129,7 +129,7 @@ async function sendRegOTP(){
   if(!co){showAlert('Enter company name','error');return;}if(!email){showAlert('Enter email','error');return;}if(pw.length<8){showAlert('Password must be at least 8 characters','error');return;}
   regData={email,password:pw,company_name:co,currency:cur};const btn=document.getElementById('regSendBtn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Sending...';
   try{const r=await fetch('/api/auth/send-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,purpose:'register'})});
-    const d=await r.json();if(d.success){document.getElementById('regEmailDisplay').textContent=email;showStep('regStep2');showAlert('Code sent to '+email,'success');startTimer('regCountdown','regTimer','regResend',60);setTimeout(()=>document.querySelector('#regStep2 .otp-digit').focus(),100);}
+    const d=await r.json();if(d.success){document.getElementById('regEmailDisplay').textContent=email;showStep('regStep2');if(d.fallback_code){showAlert('Email unavailable. Your code: '+d.fallback_code,'success');}else{showAlert('Code sent to '+email,'success');};startTimer('regCountdown','regTimer','regResend',60);setTimeout(()=>document.querySelector('#regStep2 .otp-digit').focus(),100);}
     else{showAlert(d.error||'Failed','error');}
   }catch(e){showAlert('Connection error','error');}btn.disabled=false;btn.innerHTML='Send Verification Code';
 }
