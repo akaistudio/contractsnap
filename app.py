@@ -246,20 +246,25 @@ def auto_login():
     email = verify_sso_token(token)
     if not email:
         return redirect('/login')
-    conn = get_db(); cur = conn.cursor()
-    cur.execute('SELECT * FROM users WHERE email=%s', (email,))
-    user = cur.fetchone()
-    if not user:
-        # First time this user visits — auto-provision account
-        cur.execute(
-            "INSERT INTO users (email, password_hash, created_at) VALUES (%s, %s, NOW()) RETURNING id",
-            (email, 'sso-no-password')
-        )
-        user_id = cur.fetchone()['id']
-        conn.commit()
-    else:
-        user_id = user['id']
-    conn.close()
+    try:
+        conn = get_db(); cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE email=%s', (email,))
+        user = cur.fetchone()
+        if not user:
+            cur.execute(
+                "INSERT INTO users (email, password_hash, created_at) VALUES (%s, %s, NOW()) RETURNING id",
+                (email, 'sso-no-password')
+            )
+            row = cur.fetchone()
+            user_id = row['id'] if hasattr(row, '__getitem__') else row[0]
+            if not conn.autocommit:
+                conn.commit()
+        else:
+            user_id = user['id'] if hasattr(user, '__getitem__') else user[0]
+        conn.close()
+    except Exception as e:
+        print(f"SSO auto-login error: {e}")
+        return redirect('/login')
     session.clear()
     session['user_id'] = user_id
     session.permanent = True
