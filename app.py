@@ -1117,8 +1117,19 @@ def admin_dashboard():
                   FROM users u LEFT JOIN contracts c ON u.id = c.user_id
                   GROUP BY u.id ORDER BY u.created_at DESC''')
     companies = cur.fetchall()
+    company_id = request.args.get('company_id')
+    company_items = []
+    selected_company = None
+    if company_id:
+        cur.execute('SELECT * FROM users WHERE id=%s', (company_id,))
+        selected_company = cur.fetchone()
+        cur.execute('''SELECT c.*, cl.name as client_name FROM contracts c
+                      LEFT JOIN clients cl ON c.client_id=cl.id
+                      WHERE c.user_id=%s ORDER BY c.created_at DESC''', (company_id,))
+        company_items = cur.fetchall()
     conn.close()
-    return render_template('admin.html', user=user, companies=companies)
+    return render_template('admin.html', user=user, companies=companies,
+                           company_items=company_items, selected_company=selected_company)
 
 # --- API for Varnam Suite ---
 @app.route('/api/contracts')

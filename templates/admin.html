@@ -1,24 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ContractSnap — Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:#f0f4f8;min-height:100vh}.topbar{background:#1e293b;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}.topbar h1{font-size:20px;font-weight:700;color:#fff}.topbar h1 span{color:#f59e0b}.topbar a{font-size:13px;color:#94a3b8;text-decoration:none;padding:8px 14px;border-radius:8px}.main{max-width:1000px;margin:0 auto;padding:24px}h2{font-size:22px;font-weight:700;color:#E8ECF4;margin-bottom:20px}.card{background:#141926;border-radius:12px;overflow:hidden;border-collapse:collapse}th{padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:#8B95B0;text-transform:uppercase;background:#0B0F1A;border-bottom:1px solid #2A3148}td{padding:12px 14px;font-size:14px;color:#E8ECF4;border-bottom:1px solid #2A3148}</style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ContractSnap — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--a1:#0d9488}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0B0F1A;color:#E8ECF4;min-height:100vh}
+.topbar{background:#141926;border-bottom:1px solid #2A3148;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar h1{font-size:18px;font-weight:800;color:#fff;text-decoration:none}
+.badge-admin{background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px}
+.topbar-right{display:flex;align-items:center;gap:6px}
+.topbar-right a{font-size:13px;color:#8B95B0;text-decoration:none;padding:7px 14px;border-radius:8px;transition:.15s;font-weight:500}
+.topbar-right a:hover{background:#2A3148;color:#fff}
+.topbar-right a.suite{border:1px solid #2A3148;font-size:12px}
+.main{max-width:1200px;margin:0 auto;padding:28px 24px}
+.page-header{margin-bottom:28px}
+.page-header h2{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.page-header p{font-size:14px;color:#8B95B0;margin-top:4px}
+.platform-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:32px}
+.stat{background:#141926;border-radius:12px;padding:18px 20px;border:1px solid #2A3148;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.stat .s-label{font-size:11px;font-weight:600;color:#8B95B0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat .s-val{font-size:26px;font-weight:800;color:#fff}
+.stat .s-sub{font-size:11px;color:#8B95B0;margin-top:4px}
+.stat.a1::after{background:var(--a1)}
+.stat.a2::after{background:#4ADE80}
+.stat.a3::after{background:#3B82F6}
+.stat.a4::after{background:#F59E0B}
+.stat.a5::after{background:#F87171}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-header h3{font-size:16px;font-weight:700;color:#fff}
+.section-header .count{font-size:13px;color:#8B95B0;background:#2A3148;padding:3px 10px;border-radius:20px}
+.companies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-bottom:32px}
+.co-card{background:#141926;border:1px solid #2A3148;border-radius:14px;padding:20px;cursor:pointer;transition:.2s;text-decoration:none;display:block;color:inherit}
+.co-card:hover{border-color:var(--a1);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.co-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.co-email{font-size:12px;color:#8B95B0;margin-bottom:14px}
+.co-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.co-stat{background:#0B0F1A;border-radius:8px;padding:10px 12px}
+.co-stat .cs-label{font-size:10px;font-weight:600;color:#8B95B0;text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+.co-stat .cs-val{font-size:15px;font-weight:700;color:#E8ECF4}
+.you-badge{font-size:10px;background:var(--a1);color:#fff;padding:2px 7px;border-radius:10px;font-weight:700;flex-shrink:0}
+.drill-panel{background:#141926;border:1px solid #2A3148;border-radius:16px;padding:24px;margin-bottom:24px}
+.drill-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2A3148}
+.drill-header-info h3{font-size:18px;font-weight:700;color:#fff}
+.drill-header-info p{font-size:13px;color:#8B95B0;margin-top:3px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#2A3148;color:#E8ECF4;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;flex-shrink:0}
+.back-btn:hover{background:#3A4158;color:#fff}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#8B95B0;text-transform:uppercase;letter-spacing:.5px;background:#0B0F1A;border-bottom:1px solid #2A3148;white-space:nowrap}
+td{padding:11px 14px;font-size:13px;color:#C8D0E0;border-bottom:1px solid #1E2536}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1a2035;color:#E8ECF4}
+.empty-state{text-align:center;padding:48px 20px}
+.empty-state .es-icon{font-size:40px;margin-bottom:12px}
+.empty-state p{color:#8B95B0;font-size:14px}
+.s-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.s-badge.paid,.s-badge.active,.s-badge.signed,.s-badge.generated{background:rgba(74,222,128,.12);color:#4ADE80;border:1px solid rgba(74,222,128,.2)}
+.s-badge.unpaid,.s-badge.draft,.s-badge.pending{background:rgba(251,191,36,.12);color:#FBBF24;border:1px solid rgba(251,191,36,.2)}
+.s-badge.overdue,.s-badge.cancelled{background:rgba(248,113,113,.12);color:#F87171;border:1px solid rgba(248,113,113,.2)}
+.s-badge.completed{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.2)}
+
+</style>
 </head>
 <body>
-<div class="topbar"><a href="/" style="text-decoration:none;color:inherit"><h1>Contract<span>Snap</span> — 👑 Admin</h1></a><a href="/">My Dashboard</a><a href="https://snapsuite.up.railway.app" target="_blank" style="font-size:11px;color:#8B95B0;text-decoration:none;padding:5px 10px;border:1px solid #2A3148;border-radius:6px;font-weight:600">Suite</a><div style="position:relative;display:inline-block"><button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'" style="font-size:14px;background:none;border:1px solid #2A3148;border-radius:6px;padding:5px 10px;color:#8B95B0;cursor:pointer" title="Switch App">⊞</button><div style="display:none;position:absolute;right:0;top:32px;background:#141926;border:1px solid #2A3148;border-radius:10px;padding:8px;min-width:180px;z-index:200;box-shadow:0 8px 30px rgba(0,0,0,.5)"><a href="https://invoicesnap.up.railway.app" style="display:block;padding:8px 12px;color:#E8ECF4;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500" onmouseover="this.style.background='#2A3148'" onmouseout="this.style.background='none'">📄 InvoiceSnap</a><a href="https://expensesnap.up.railway.app" style="display:block;padding:8px 12px;color:#E8ECF4;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500" onmouseover="this.style.background='#2A3148'" onmouseout="this.style.background='none'">📸 ExpenseSnap</a><a href="https://payslipsnap.up.railway.app" style="display:block;padding:8px 12px;color:#E8ECF4;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500" onmouseover="this.style.background='#2A3148'" onmouseout="this.style.background='none'">💰 PayslipSnap</a><a href="https://proposalsnap.up.railway.app" style="display:block;padding:8px 12px;color:#E8ECF4;text-decoration:none;border-radius:6px;font-size:13px;font-weight:500" onmouseover="this.style.background='#2A3148'" onmouseout="this.style.background='none'">🎯 ProposalSnap</a></div></div></div>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/" style="text-decoration:none"><h1>Contract<span>Snap</span></h1></a>
+    <span class="badge-admin">👑 ADMIN</span>
+  </div>
+  <div class="topbar-right">
+    <a href="https://snapsuite.up.railway.app" target="_blank" class="suite">← Varnam Suite</a>
+    
+    <a href="/">Dashboard</a>
+    <a href="/logout">Sign out</a>
+  </div>
+</div>
 <div class="main">
+  <div class="page-header">
     <h2>Platform Overview</h2>
-    <div class="card">
-        <table>
-            <thead><tr><th>Company</th><th>Email</th><th>Contracts</th><th>Total Value</th><th>Joined</th></tr></thead>
-            <tbody>
-            {% for c in companies %}
-            <tr><td><strong>{{ c.company_name or 'Unnamed' }}</strong></td><td>{{ c.email }}</td><td>{{ c.contract_count }}</td><td>{{ "{:,.0f}".format(c.total_value or 0) }}</td><td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '' }}</td></tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <p>All companies using ContractSnap. Click a company to see their data.</p>
+  </div>
+  <div class="platform-stats">
+    
+    <div class="stat a1"><div class="s-label">Companies</div><div class="s-val">{{ companies|length }}</div><div class="s-sub">registered</div></div>
+    <div class="stat a2"><div class="s-label">Total Contracts</div><div class="s-val">{{ companies|sum(attribute='contract_count') }}</div></div>
+    <div class="stat a3"><div class="s-label">Total Value</div><div class="s-val">{{ "{:,.0f}".format(companies|sum(attribute='total_value')) }}</div></div>
+    
+  </div>
+  {% if selected_company %}
+  <div class="drill-panel">
+    <div class="drill-header">
+      <a href="/admin" class="back-btn">← Back</a>
+      <div class="drill-header-info">
+        <h3>{{ selected_company.company_name or selected_company.email }}</h3>
+        <p>{{ selected_company.email }} · Joined {{ selected_company.created_at.strftime('%b %d, %Y') if selected_company.created_at else '—' }}</p>
+      </div>
     </div>
+    
+    {% if company_items %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Contract #</th><th>Title</th><th>Client</th><th>Value</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for r in company_items %}
+      <tr>
+        <td><strong>{{ r.contract_number or '—' }}</strong></td>
+        <td>{{ r.title }}</td>
+        <td>{{ r.client_name or '—' }}</td>
+        <td>{{ "{:,.0f}".format(r.total_value or 0) }}</td>
+        <td><span class="s-badge {{ r.status }}">{{ r.status|capitalize }}</span></td>
+        <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '—' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <div class="empty-state"><div class="es-icon">📋</div><p>No contracts yet for this company.</p></div>
+    {% endif %}
+    
+  </div>
+  {% endif %}
+  <div class="section-header">
+    <h3>All Companies</h3>
+    <span class="count">{{ companies|length }} total</span>
+  </div>
+  <div class="companies-grid">
+    {% for c in companies %}
+    <a class="co-card{% if selected_company and c.id == selected_company.id %} active{% endif %}" href="/admin?company_id={{ c.id }}">
+      <div class="co-name">
+        {{ c.company_name or 'Unnamed Company' }}
+        {% if c.id == user.id %}<span class="you-badge">You</span>{% endif %}
+      </div>
+      <div class="co-email">{{ c.email }}</div>
+      <div class="co-stats">
+        
+        <div class="co-stat"><div class="cs-label">Contracts</div><div class="cs-val">{{ c.contract_count }}</div></div>
+        <div class="co-stat"><div class="cs-label">Total Value</div><div class="cs-val">{{ "{:,.0f}".format(c.total_value or 0) }}</div></div>
+    
+      </div>
+    </a>
+    {% endfor %}
+  </div>
 </div>
 </body></html>
