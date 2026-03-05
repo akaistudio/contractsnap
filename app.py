@@ -121,6 +121,7 @@ def init_db():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_superadmin BOOLEAN DEFAULT FALSE",
         "UPDATE users SET is_superadmin = TRUE WHERE id = (SELECT MIN(id) FROM users)",
         "ALTER TABLE contracts ADD COLUMN IF NOT EXISTS company_name TEXT DEFAULT ''",
+        "ALTER TABLE contracts ADD COLUMN IF NOT EXISTS signed_date DATE DEFAULT NULL",
     ]
     for m in migrations:
         try:
@@ -752,8 +753,12 @@ def update_status(contract_id):
     new_status = request.form.get('status', 'draft')
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('UPDATE contracts SET status=%s, updated_at=NOW() WHERE id=%s AND user_id=%s',
-               (new_status, contract_id, user['id']))
+    if new_status == 'signed':
+        cur.execute('UPDATE contracts SET status=%s, signed_date=CURRENT_DATE, updated_at=NOW() WHERE id=%s AND user_id=%s',
+                   (new_status, contract_id, user['id']))
+    else:
+        cur.execute('UPDATE contracts SET status=%s, updated_at=NOW() WHERE id=%s AND user_id=%s',
+                   (new_status, contract_id, user['id']))
     conn.close()
     flash(f'Status updated to {new_status}', 'success')
     return redirect(url_for('view_contract', contract_id=contract_id))
@@ -1168,7 +1173,7 @@ def api_contracts():
             if hasattr(v, 'isoformat'):
                 c[k] = v.isoformat()
         c.pop('po_file_data', None)
-    return jsonify({'contracts': contracts, 'count': len(contracts)})
+    return jsonify({'contracts': contracts, 'count': len(contracts), 'currency': user.get('currency', '')})
 
 # --- Helpers ---
 def extract_brand_color(img_bytes):
@@ -1190,6 +1195,11 @@ def extract_brand_color(img_bytes):
         return f"#{most_common[0]:02x}{most_common[1]:02x}{most_common[2]:02x}"
     except Exception:
         return None
+
+
+@app.route('/health')
+def health():
+    return __import__('flask').jsonify({'status': 'ok', 'app': 'contractsnap'})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
