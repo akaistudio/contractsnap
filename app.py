@@ -422,7 +422,7 @@ def api_register():
         return jsonify({"error": "Email already registered"}), 409
 
 
-CURR_SYMBOLS = {'CAD': 'C$', 'INR': 'Rs.', 'EUR': 'EUR', 'USD': '$', 'GBP': 'GBP', 'MYR': 'RM'}
+CURR_SYMBOLS = {'CAD': 'C$', 'INR': 'Rs.', 'EUR': 'EUR', 'USD': '$', 'GBP': 'GBP', 'MYR': 'RM', 'SGD': 'S$', 'AUD': 'A$', 'AED': 'AED'}
 
 def curr_sym(currency):
     return CURR_SYMBOLS.get(currency, '$')
