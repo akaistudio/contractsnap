@@ -298,16 +298,6 @@ def auto_login():
     return redirect('/')
 
 @app.route('/demo')
-def demo_auto_login():
-    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM users WHERE email='demo@varnam.app'")
-    user = cur.fetchone(); conn.close()
-    if user:
-        session['user_id'] = user['id']
-        return redirect('/')
-    return redirect('/login')
-
-@app.route('/demo')
 def demo_login():
     """One-click demo — shared Bloom Studio account, reseeds every 24h."""
     from datetime import datetime, timedelta
