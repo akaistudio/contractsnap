@@ -28,7 +28,7 @@ def get_db():
     db_url = os.environ.get('DATABASE_URL', '')
     if db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
-    conn = psycopg2.connect(db_url)
+    conn = psycopg2.connect(db_url, cursor_factory=psycopg2.extras.RealDictCursor)
     conn.autocommit = True
     return conn
 
