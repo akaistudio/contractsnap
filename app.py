@@ -281,6 +281,24 @@ def demo_auto_login():
         return redirect('/')
     return redirect('/login')
 
+@app.route('/demo')
+def demo_login():
+    """One-click demo login."""
+    demo_email = 'demo@varnam.app'
+    conn = get_db(); cur = conn.cursor()
+    cur.execute('SELECT * FROM users WHERE email=%s', (demo_email,))
+    user = cur.fetchone()
+    if not user:
+        cur.execute('INSERT INTO users (email, password_hash, company_name, currency, is_superadmin) VALUES (%s,%s,%s,%s,%s) RETURNING *',
+                   (demo_email, hash_pw('demo123'), 'Bloom Studio', 'INR', True))
+        user = cur.fetchone()
+        if not conn.autocommit: conn.commit()
+    session.clear()
+    session['user_id'] = user['id']
+    session.permanent = True
+    conn.close()
+    return redirect('/')
+
 @app.route('/welcome')
 def welcome():
     if 'user_id' in session: return redirect('/')
