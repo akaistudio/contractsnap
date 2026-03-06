@@ -283,18 +283,61 @@ def demo_auto_login():
 
 @app.route('/demo')
 def demo_login():
-    """One-click demo login."""
+    """One-click demo — shared Bloom Studio account, reseeds every 24h."""
+    from datetime import datetime, timedelta
     demo_email = 'demo@varnam.app'
     conn = get_db(); cur = conn.cursor()
+    try:
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS demo_reset_at TIMESTAMP")
+        if not conn.autocommit: conn.commit()
+    except: pass
     cur.execute('SELECT * FROM users WHERE email=%s', (demo_email,))
     user = cur.fetchone()
+    needs_seed = False
     if not user:
-        cur.execute('INSERT INTO users (email, password_hash, company_name, currency, is_superadmin) VALUES (%s,%s,%s,%s,%s) RETURNING *',
-                   (demo_email, hash_pw('demo123'), 'Bloom Studio', 'INR', True))
+        cur.execute("""INSERT INTO users (email, password_hash, company_name, currency, is_superadmin, demo_reset_at)
+                       VALUES (%s,%s,'Bloom Studio','INR',TRUE,NOW()) RETURNING *""",
+                   (demo_email, hash_pw('demo123')))
         user = cur.fetchone()
         if not conn.autocommit: conn.commit()
+        needs_seed = True
+    else:
+        last_reset = user.get('demo_reset_at')
+        if not last_reset or (datetime.utcnow() - last_reset.replace(tzinfo=None)) > timedelta(hours=24):
+            needs_seed = True
+    uid = user['id']
+    if needs_seed:
+        cur.execute("DELETE FROM contracts WHERE user_id=%s", (uid,))
+        cur.execute("DELETE FROM clients WHERE user_id=%s", (uid,))
+        cur.execute("UPDATE users SET demo_reset_at=NOW() WHERE id=%s", (uid,))
+        clients_data = [
+            ('Meridian Architects','meridian@example.com','45 MG Road, Bangalore','9876543210','Rahul Menon','29ABCDE1234F1Z5'),
+            ('Zenith Foods Pvt Ltd','zenith@example.com','12 Church St, Bangalore','9876500001','Anita Sharma','29FGHIJ5678K2Z3'),
+            ('Priya Wellness Spa','priya@example.com','88 Lavelle Rd, Bangalore','9812345678','Priya Reddy','29KLMNO9012P3Z1'),
+            ('TechNova Solutions','technova@example.com','HSR Layout, Bangalore','9900112233','Vikram Joshi','29PQRST3456U4Z9'),
+            ('CloudFirst India','cloud@example.com','Whitefield, Bangalore','9123456780','Deepak Kumar','29QWERT1234Y6Z2'),
+        ]
+        client_ids = {}
+        for c in clients_data:
+            cur.execute("INSERT INTO clients (user_id,name,email,address,phone,contact_person,tax_id) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
+                       (uid, c[0],c[1],c[2],c[3],c[4],c[5]))
+            client_ids[c[0]] = cur.fetchone()['id']
+        contracts = [
+            ('CON-2026-001','Website Redesign & Development','service','active','2026-01-01','2026-06-30',320000,'INR','50% advance, 25% on UAT, 25% on delivery','Complete redesign of corporate website.','Standard T&C apply.','Homepage, 8 pages, blog, contact form','Meridian Architects'),
+            ('CON-2026-002','Brand Identity Package','service','active','2026-01-15','2026-03-15',150000,'INR','100% advance','Full brand identity including logo, color palette, brand guidelines.','Includes 3 revision rounds.','Logo, brand guide, business cards, letterhead','Zenith Foods Pvt Ltd'),
+            ('CON-2026-003','Social Media Management Q1','service','active','2026-01-01','2026-03-31',90000,'INR','Monthly billing','20 posts/month for Instagram and LinkedIn.','Content calendar approval 5 days before posting.','60 posts, 12 reels, monthly analytics report','Priya Wellness Spa'),
+            ('CON-2026-004','Mobile App UI/UX Design','service','draft','2026-02-15','2026-05-15',250000,'INR','30-60-10 milestone','UI/UX for iOS and Android app.','Figma files delivered on completion.','Research, wireframes, UI kit, 25 screens','TechNova Solutions'),
+            ('CON-2026-005','Annual Retainer 2025','service','completed','2025-01-01','2025-12-31',480000,'INR','Monthly','Ongoing design support, 40 hours/month.','Unused hours do not roll over.','Marketing materials, presentations, social assets','CloudFirst India'),
+        ]
+        for c in contracts:
+            cid = client_ids.get(c[12])
+            cur.execute("""INSERT INTO contracts (user_id,client_id,contract_number,title,contract_type,status,start_date,end_date,
+                           total_value,currency,payment_terms,scope_of_work,terms_conditions,deliverables,company_name)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'Bloom Studio')""",
+                       (uid,cid,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[11]))
+        if not conn.autocommit: conn.commit()
     session.clear()
-    session['user_id'] = user['id']
+    session['user_id'] = uid
     session.permanent = True
     conn.close()
     return redirect('/')
