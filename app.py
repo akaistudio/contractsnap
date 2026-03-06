@@ -213,18 +213,24 @@ def verify_sso_token(token):
         decoded = base64.urlsafe_b64decode(token.encode()).decode()
         parts = decoded.rsplit('|', 2)
         if len(parts) != 3:
+            print(f"[SSO] Bad parts: {len(parts)}")
             return None
         email, timestamp, provided_sig = parts
-        if _time.time() - int(timestamp) > SSO_TOKEN_MAX_AGE:
+        age = _time.time() - int(timestamp)
+        if age > SSO_TOKEN_MAX_AGE:
+            print(f"[SSO] Token expired: {age:.0f}s old")
             return None
         payload = f"{email}|{timestamp}"
         expected_sig = _hmac.new(
             VARNAM_SSO_SECRET.encode(), payload.encode(), hashlib.sha256
         ).hexdigest()
         if not _hmac.compare_digest(expected_sig, provided_sig):
+            print(f"[SSO] Sig mismatch for {email}")
             return None
+        print(f"[SSO] ✅ Token OK for {email}, age={age:.0f}s")
         return email
-    except Exception:
+    except Exception as e:
+        print(f"[SSO] Exception: {e}")
         return None
 
 def login_required(f):
@@ -251,9 +257,22 @@ def get_user():
 def auto_login():
     """SSO entry point — called by FinanceSnap with a signed token."""
     token = request.args.get('token', '')
+    if not token:
+        return redirect('/login')
     email = verify_sso_token(token)
     if not email:
-        return redirect('/login')
+        # Show debug info instead of silent redirect
+        from flask import make_response
+        import base64 as _b64
+        try:
+            decoded = _b64.urlsafe_b64decode(token.encode()).decode()
+            parts = decoded.rsplit('|', 2)
+            age = __import__('time').time() - int(parts[1]) if len(parts)==3 else -1
+            debug = f"Token decoded OK, parts={len(parts)}, age={age:.0f}s, max={SSO_TOKEN_MAX_AGE}s"
+        except Exception as ex:
+            debug = f"Token decode failed: {ex}"
+        print(f"[SSO] Auth failed: {debug}")
+        return f"<pre style='padding:20px'>SSO failed: {debug}<br><a href='/login'>Login manually</a></pre>"
     try:
         conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute('SELECT * FROM users WHERE email=%s', (email,))
