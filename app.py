@@ -357,7 +357,6 @@ def demo_login():
 
 @app.route('/welcome')
 def welcome():
-    if 'user_id' in session: return redirect('/')
     return render_template('landing.html')
 
 @app.route('/login', methods=['GET'])
