@@ -299,33 +299,23 @@ def auto_login():
 
 @app.route('/demo')
 def demo_login():
-    """One-click demo — shared Bloom Studio account, reseeds every 24h."""
-    from datetime import datetime, timedelta
+    """One-click demo — shared Bloom Studio account. Seed on first visit only."""
     demo_email = 'demo@varnam.app'
     conn = get_db(); cur = conn.cursor()
-    try:
-        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS demo_reset_at TIMESTAMP")
-        if not conn.autocommit: conn.commit()
-    except: pass
     cur.execute('SELECT * FROM users WHERE email=%s', (demo_email,))
     user = cur.fetchone()
     needs_seed = False
     if not user:
-        cur.execute("""INSERT INTO users (email, password_hash, company_name, currency, is_superadmin, demo_reset_at)
-                       VALUES (%s,%s,'Bloom Studio','INR',TRUE,NOW()) RETURNING *""",
+        cur.execute("""INSERT INTO users (email, password_hash, company_name, currency, is_superadmin)
+                       VALUES (%s,%s,'Bloom Studio','INR',TRUE) RETURNING *""",
                    (demo_email, hash_pw('demo123')))
         user = cur.fetchone()
         if not conn.autocommit: conn.commit()
         needs_seed = True
-    else:
-        last_reset = user.get('demo_reset_at')
-        if not last_reset or (datetime.utcnow() - last_reset.replace(tzinfo=None)) > timedelta(hours=24):
-            needs_seed = True
     uid = user['id']
     if needs_seed:
         cur.execute("DELETE FROM contracts WHERE user_id=%s", (uid,))
         cur.execute("DELETE FROM clients WHERE user_id=%s", (uid,))
-        cur.execute("UPDATE users SET demo_reset_at=NOW() WHERE id=%s", (uid,))
         clients_data = [
             ('Meridian Architects','meridian@example.com','45 MG Road, Bangalore','9876543210','Rahul Menon','29ABCDE1234F1Z5'),
             ('Zenith Foods Pvt Ltd','zenith@example.com','12 Church St, Bangalore','9876500001','Anita Sharma','29FGHIJ5678K2Z3'),
