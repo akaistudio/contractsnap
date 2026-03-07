@@ -298,8 +298,12 @@ def auto_login():
     return redirect('/')
 
 @app.route('/demo')
+@app.route('/demo/reset')
 def demo_login():
     """One-click demo — shared Bloom Studio account. Seed on first visit only."""
+    force_reseed = request.path == '/demo/reset' and request.args.get('key') == 'varnam2026'
+    if request.path == '/demo/reset' and not force_reseed:
+        return redirect('/demo')
     demo_email = 'demo@varnam.app'
     conn = get_db(); cur = conn.cursor()
     cur.execute('SELECT * FROM users WHERE email=%s', (demo_email,))
@@ -311,6 +315,8 @@ def demo_login():
                    (demo_email, hash_pw('demo123')))
         user = cur.fetchone()
         if not conn.autocommit: conn.commit()
+        needs_seed = True
+    elif force_reseed:
         needs_seed = True
     uid = user['id']
     if needs_seed:
