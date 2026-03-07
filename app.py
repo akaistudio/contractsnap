@@ -134,7 +134,8 @@ def init_db():
         try:
             cur.execute(m)
         except Exception:
-            pass
+            conn.rollback()
+    conn.commit()
     conn.close()
 
 init_db()
@@ -595,11 +596,11 @@ def create_contract():
                         request.form.get('client_email', ''),
                         request.form.get('client_address', ''),
                         request.form.get('contact_person', '')))
-            client_id = cur.fetchone()[0]
+            client_id = cur.fetchone()['id']
 
         # Contract number
-        cur.execute('SELECT COUNT(*) FROM contracts WHERE user_id=%s', (user['id'],))
-        count = cur.fetchone()[0] + 1
+        cur.execute('SELECT COUNT(*) as count FROM contracts WHERE user_id=%s', (user['id'],))
+        count = cur.fetchone()['count'] + 1
         prefix = 'CTR'
         contract_number = f"{prefix}-{count:04d}"
 
@@ -623,7 +624,7 @@ def create_contract():
                     request.form.get('deliverables', ''),
                     request.form.get('po_number', ''),
                     request.form.get('notes', '')))
-        contract_id = cur.fetchone()[0]
+        contract_id = cur.fetchone()['id']
 
         # Save milestones
         m_titles = request.form.getlist('milestone_title[]')
@@ -764,11 +765,11 @@ def save_po():
                     request.form.get('client_email', ''),
                     request.form.get('client_address', ''),
                     request.form.get('contact_person', '')))
-        client_id = cur.fetchone()[0]
+        client_id = cur.fetchone()['id']
 
     # Contract number
-    cur.execute('SELECT COUNT(*) FROM contracts WHERE user_id=%s', (user['id'],))
-    count = cur.fetchone()[0] + 1
+    cur.execute('SELECT COUNT(*) as count FROM contracts WHERE user_id=%s', (user['id'],))
+    count = cur.fetchone()['count'] + 1
     contract_number = f"PO-{count:04d}"
 
     start = request.form.get('start_date') or None
@@ -788,7 +789,7 @@ def save_po():
                 request.form.get('po_number', ''),
                 request.form.get('po_file_data', ''),
                 request.form.get('notes', '')))
-    contract_id = cur.fetchone()[0]
+    contract_id = cur.fetchone()['id']
     conn.close()
     flash(f'Purchase Order {contract_number} saved!', 'success')
     return redirect(url_for('view_contract', contract_id=contract_id))
