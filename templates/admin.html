@@ -66,6 +66,24 @@ tr:hover td{background:#1a2035;color:#E8ECF4}
 .s-badge.overdue,.s-badge.cancelled{background:rgba(248,113,113,.12);color:#F87171;border:1px solid rgba(248,113,113,.2)}
 .s-badge.completed{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.2)}
 
+
+@media(max-width:768px){
+  .topbar{flex-wrap:wrap;gap:6px;padding:10px 14px!important}
+  .topbar-right{flex-wrap:wrap;gap:4px}
+  .topbar-right a{font-size:12px!important;padding:5px 8px!important}
+  .hide-mobile,.topbar-right a span.hide-mobile{display:none!important}
+  .main{padding:12px!important}
+  .stats{grid-template-columns:repeat(2,1fr)!important}
+  .stat-card{padding:14px!important}
+  .stat-card .value{font-size:22px!important}
+  .card{padding:16px!important;overflow-x:auto}
+  .table-wrap{overflow-x:auto!important}
+  table{min-width:480px}
+  th,td{padding:8px 10px!important;font-size:12px!important}
+  input,select,textarea{font-size:16px!important}
+  .g2,.g3,.row2,.row3,.grid-2,.grid-3{grid-template-columns:1fr!important}
+  form .row,form .row2,.form-row{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
